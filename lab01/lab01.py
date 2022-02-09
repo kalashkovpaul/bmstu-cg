@@ -4,9 +4,12 @@
 # 6-ти треугольников, образованных пересечением медиан, максимальна.
 # Автор: Калашков Павел, ИУ7-46Б
 
+from calendar import c
+from random import weibullvariate
 import tkinter as tk
 import tkinter.messagebox as box
 from tkinter import *
+
 
 # a subclass of Canvas for dealing with resizing of windows
 class ResizingCanvas(Canvas):
@@ -50,10 +53,15 @@ class Dot(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
+    
+    def __str__(self):
+        return ("({}; {})".format(self.x, self.y))
 
 
 class Line(object):
     def __init__(self, dot_1, dot_2):
+        if dot_1.x == dot_2.x and dot_1.y == dot_2.y:
+            return
         self.dot_1 = dot_1
         self.dot_2 = dot_2
         self.center = Dot((dot_1.x + dot_2.x) / 2, (dot_1.y + dot_2.y) / 2)
@@ -65,6 +73,16 @@ class Line(object):
 
     def print_info(self):
         print(str(self.A) + "x + " + str(self.B) + "y + " + str(self.C))
+
+    def find_intersection(self, line):
+        tmp = self.A * line.B - self.B * line.A
+        if abs(tmp) >= 1e-7:
+            x = (self.B * line.C - line.B * self.C) / tmp
+            y = (self.C * line.A - self.A * line.C) / tmp
+            return Dot(x, y)
+        else:
+            return None
+
 
     def find_borders(self):
         if self.A == 0:
@@ -93,6 +111,140 @@ class Line(object):
         y2 = (-1) * int(self.border_2.y / scale[1]) + size[1] / 2
         canvas.create_line(x1, y1, x2, y2, fill='red', activewidth=3)
 
+def find_middle(first, second):
+    x = (first.x + second.x) / 2
+    y = (first.y + second.y) / 2
+    middle = Dot(x, y)
+    return middle
+
+def find_len(dot_1, dot_2):
+    return ((dot_1.x - dot_2.x)**2 + (dot_1.y - dot_2.y)**2)**(1 / 2)
+
+
+def draw_axes(scale, x0, y0):
+    border = 60
+    delta = 50
+    x = 80
+    real_x = x0
+    real_delta = delta * scale
+    smol = 10
+    canvas.create_line(x, size[1] + border, size[0] + x, size[1] + border, width=3)
+    while x < size[0] + border:
+        canvas.create_line(x, size[1] + border - smol / 2, x, size[1] + border + smol / 2, width=3)
+        canvas.create_text(x, size[1] + border + 1.5 * smol, text=f'{real_x:5.2f}')
+        x += delta
+        real_x += real_delta
+    x = 80
+    y = size[1] + border
+    real_y = y0
+    canvas.create_line(x, 0, x, size[1] + border, width=3)
+    while y > 0:
+        canvas.create_line(x - smol / 2, y, x + smol / 2, y, width=3)
+        canvas.create_text(x - 4 * smol, y, text=f'{real_y:5.2f}')
+        y -= delta
+        real_y += real_delta
+
+class Triangle(object):
+    middle_ab = Dot(0, 0)
+    middle_bc = Dot(0, 0)
+    middle_ac = Dot(0, 0)
+    median_middle = Dot(0, 0)
+    square = 0
+
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
+        self.middle_ab = find_middle(a, b)
+        self.middle_bc = find_middle(b, c)
+        self.middle_ac = find_middle(a, c)
+        ab = find_len(a, b)
+        bc = find_len(b, c)
+        ac = find_len(a, c)
+        p = (ab + bc + ac) / 2
+        self.square = (p * (p - ac) * (p - bc) * (p - ab)) ** (1 / 2)
+        if abs(self.square) <= 1e-7:
+            self.square = 0
+            self.median_middle = Dot(0, 0)
+        else:
+            self.median_middle = Line(self.a, self.middle_bc).find_intersection(Line(self.b, self.middle_ac))
+
+    def has(self, dot):
+        return abs(self.square \
+            - Triangle(self.a, self.b, dot).square \
+                - Triangle(self.b, self.c, dot).square \
+                    - Triangle(self.a, self.c, dot).square) < 1e-7
+
+    def print_info(self):
+        print(str(self.a) + ", " + str(self.b) + ", " + str(self.c))
+
+            
+    def draw(self, with_medians, with_dots):
+
+        canvas.delete("all")
+        max_x = max(self.a.x, self.b.x, self.c.x)
+        min_x = min(self.a.x, self.b.x, self.c.x)
+        max_y = max(self.a.y, self.b.y, self.c.y)
+        min_y = min(self.a.y, self.b.y, self.c.y)
+        delta_x = max_x - min_x
+        delta_y = max_y - min_y
+        scale = 1
+        width = 4 * delta_x / 3
+        height = 4 * delta_y / 3
+        if width / height < size[0] / size[1]:
+            scale = height / size[1]
+        else:
+            scale = width / size[0]
+        
+        width = scale * size[0]
+        height = scale * size[1]
+        print("Scale: {}".format(scale))
+        x0 = min_x - width * 1 / 6
+        y0 = min_y - height * 1 / 6
+        draw_axes(scale, x0, y0)
+        
+        border = 60
+        delta = 50
+        x = 80
+        real_x = x0
+        real_delta = delta * scale
+        smol = 10
+        x0_im = x0 / scale
+        y0_im = y0 / scale
+        ax_im = self.a.x / scale - x0 / scale + x
+        bx_im = self.b.x / scale - x0 / scale + x
+        cx_im = self.c.x / scale - x0 / scale + x
+
+        ay_im = size[1] + border - ((self.a.y - y0) / scale)
+        by_im = size[1] + border - ((self.b.y  - y0) / scale)
+        cy_im = size[1] + border - ((self.c.y - y0) / scale)
+
+        canvas.create_polygon(ax_im, ay_im, bx_im, by_im, cx_im, cy_im, width=2, fill="white", outline="black")
+        if with_medians:
+            middle_ab_x_im = self.middle_ab.x / scale - x0 / scale + x
+            middle_bc_x_im = self.middle_bc.x / scale - x0 / scale + x
+            middle_ac_x_im = self.middle_ac.x / scale - x0 / scale + x
+
+            middle_ab_y_im = size[1] + border - ((self.middle_ab.y - y0) / scale)
+            middle_bc_y_im = size[1] + border - ((self.middle_bc.y - y0) / scale)
+            middle_ac_y_im = size[1] + border - ((self.middle_ac.y - y0) / scale)
+            
+            canvas.create_line(middle_ab_x_im, middle_ab_y_im, cx_im, cy_im, width=2, fill="grey")
+            canvas.create_line(middle_bc_x_im, middle_bc_y_im, ax_im, ay_im, width=2, fill="grey")
+            canvas.create_line(middle_ac_x_im, middle_ac_y_im, bx_im, by_im, width=2, fill="grey")
+        if with_dots:
+            radius = 4
+            for dot in dots:
+                if self.has(dot):
+                    x_im = dot.x / scale - x0 / scale + x
+                    y_im = size[1] + border - ((dot.y - y0) / scale)
+                    canvas.create_oval(x_im - radius, y_im - radius, x_im + radius, y_im + radius, fill="red")
+            
+
+
+
+
+    
 
 def enter_dot():
     try:
@@ -174,26 +326,59 @@ def is_parallel(line_1, line_2):
         return 1
     return 0
 
+def process(triangle):
+    amount = len(dots)
+    min_amount = -1
+    max_amount = amount + 1
+
+    amount_1 = 0; amount_2 = 0; amount_3 = 0
+    amount_4 = 0; amount_5 = 0; amount_6 = 0
+    first = Triangle(triangle.a, triangle.middle_ab, triangle.median_middle)
+    second = Triangle(triangle.b, triangle.middle_ab, triangle.median_middle)
+    third = Triangle(triangle.b, triangle.middle_bc, triangle.median_middle)
+    fourth = Triangle(triangle.median_middle, triangle.middle_bc, triangle.c)
+    fifth = Triangle(triangle.median_middle, triangle.c, triangle.middle_ac)
+    sixth = Triangle(triangle.median_middle, triangle.middle_ac, triangle.a)
+    
+    for dot in dots:
+        if dot != triangle.a and dot != triangle.b and dot != triangle.c:
+            if first.has(dot):
+                amount_1 += 1
+            if second.has(dot):
+                amount_2 += 1
+            if third.has(dot):
+                amount_3 += 1
+            if fourth.has(dot):
+                amount_4 += 1
+            if fifth.has(dot):
+                amount_5 += 1
+            if sixth.has(dot):
+                amount_6 += 1
+
+    result = max(amount_1, amount_2, amount_3, amount_4, amount_5, amount_6) - min(amount_1, amount_2, amount_3, amount_4, amount_5, amount_6)
+    return result
+
 
 def find():
-    maximum = 0
-    counter = 0
-    target_line = None
-    for dot_1 in dots:
-        for dot_2 in dots:
-            if dot_1 != dot_2:
-                line_1 = Line(dot_1, dot_2)
-                for line_2 in lines:
-                    if is_parallel(line_1, line_2):
-                        counter += 1
-                    if counter > maximum:
-                        maximum = counter
-                        target_line = line_1
-    return target_line
+    top_result = -1
+    res_triangle = None
+    for a in dots:
+        for b in dots:
+            for c in dots:
+                if a != b and a != c and b != c:
+                    triangle = Triangle(a, b, c)
+                    if not res_triangle and triangle:
+                        res_triangle = triangle
+                    if abs(triangle.square) > 1e-7 and triangle.median_middle != None:
+                        result = process(triangle)
+                        if result > top_result:
+                            top_result = result
+                            res_triangle = triangle
+    return res_triangle
 
 
 def is_inside(dot):
-    if 0 < dot.x / scale[1] + size[0]/2 < size[0] and 0 < dot.y / scale[1] - size[1]/2 < size[1]:
+    if 0 < dot.x / scale[1] + size[0] / 2 < size[0] and 0 < dot.y / scale[1] - size[1]/2 < size[1]:
         return True
     else:
         return False
@@ -235,20 +420,24 @@ def find_scale():
     scale[1] = max(abs(max_x - min_x) / size[0] * 2, abs(max_y - min_y) / size[1] * 2) * 1.1
 
 
-def build():
-    canvas.delete("all")
-    find_scale()
-    for line in lines:
-        line.print_line()
-
+def build(triangle):
+    if triangle:
+        triangle.print_info()
+        canvas.delete("all")
+        triangle.draw(True, True)
+        
 
 def find_and_build():
-    if len(dots) == 0 or len(lines) == 0:
-        box.showwarning("Недостаточное количество элементов", "Элементов недостаточно. Введите больше элементов")
-    build()
-    target = find()
-    if target is not None:
-        target.print_target()
+    if len(dots) < 3:
+        box.showwarning("Недостаточное количество точек", "Элементов недостаточно. Введите больше точек (как минимум 3)")
+    
+    triangle = find()
+    if triangle:
+        build(triangle)
+    else:
+        box.showwarning("Не получилось", "Не получилось, непонятная ошибка")
+    
+
 
 
 dots = []  # массив для точек
@@ -258,7 +447,7 @@ size = [1600, 600]
 main_window = tk.Tk()
 main_window.geometry("1600x1500")
 main_window.title("Лаб. работа №1 \"Геометрическая задача\", Вариант 27")
-dots_listbox = tk.Listbox(master=main_window, font='Times 14', height=10)
+dots_listbox = tk.Listbox(master=main_window, font='Times 14', height=14)
 
 
 task_label1 = tk.Label(master=main_window, text='На плоскости дано множество точек. Найти такой треугольник с вершинами в этих точках, у которого разность макс.',
@@ -303,7 +492,7 @@ final_button = tk.Button(master=main_window, text='Найти треугольн
  16', command=find_and_build)
 final_button.grid(row=6, column=1)
 
-canvas = tk.Canvas(height=size[1], width=size[0], bg='white')
+canvas = ResizingCanvas(main_window, height=size[1], width=size[0], bg='white')
 canvas.grid(row=7, column=0, columnspan=7)
 
 for row_num in range(main_window.grid_size()[1]):
