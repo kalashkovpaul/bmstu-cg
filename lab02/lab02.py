@@ -1,13 +1,13 @@
-# Лабораторная работа №1 по Компьютерной графике, Вариант 27
-# На плоскости дано множество точек. Найти такой треугольник с вершинами в этих точках,
-# у которого разность максимального и минимального количества точек, попавших в каждый из
-# 6-ти треугольников, образованных пересечением медиан, максимальна.
-# Автор: Калашков Павел, ИУ7-46Б
+# Лабораторная работа №2 по Компьютерной графике, Вариант 13
+# Нарисовать исходную фигуру, затем осуществить её перенос, масштабирование 
+# и поворот.
+# Фигура: эпициклоида
 
-from doctest import master
+from math import cos, radians, sin
 import tkinter as tk
 import tkinter.messagebox as box
 from tkinter import *
+import copy
 
 
 # a subclass of Canvas for dealing with resizing of windows
@@ -36,7 +36,6 @@ class Dot(object):
     
     def __str__(self):
         return ("({}; {})".format(self.x, self.y))
-
 
 class Line(object):
     def __init__(self, dot_1, dot_2):
@@ -90,7 +89,7 @@ class Line(object):
         x2 = int(self.border_2.x / scale[1]) + size[0] / 2
         y2 = (-1) * int(self.border_2.y / scale[1]) + size[1] / 2
         canvas.create_line(x1, y1, x2, y2, fill='red', activewidth=3)
-
+        
 def find_middle(first, second):
     x = (first.x + second.x) / 2
     y = (first.y + second.y) / 2
@@ -99,7 +98,6 @@ def find_middle(first, second):
 
 def find_len(dot_1, dot_2):
     return ((dot_1.x - dot_2.x)**2 + (dot_1.y - dot_2.y)**2)**(1 / 2)
-
 
 def draw_axes(scale, x0, y0):
     border = 60
@@ -157,13 +155,6 @@ class Triangle(object):
 
     def print_info(self):
         print(str(self.a) + ", " + str(self.b) + ", " + str(self.c))
-    
-    def print_info_to_entry(self):
-        results_entry.configure(state='normal')
-        results_entry.delete(0, last='end')
-        string = "треугольник с вершинами в точках " + str(self.a) + ", " + str(self.b) + ", " + str(self.c)
-        results_entry.insert(0, string)
-        results_entry.configure(state='readonly')
 
             
     def draw(self, with_medians, with_dots):
@@ -226,79 +217,86 @@ class Triangle(object):
                     x_im = dot.x / scale - x0 / scale + x
                     y_im = size[1] + border - ((dot.y - y0) / scale)
                     canvas.create_oval(x_im - radius, y_im - radius, x_im + radius, y_im + radius, fill="red")
-            
 
-def enter_dot():
+def enter_shift():
     try:
         x, y = map(float, dots_entry.get().split())
-        new_dot = Dot(x, y)
-        dots.append(new_dot)
-        dot_string = "{:d}) ({:6.4f}; {:6.4f})".format(len(dots), x, y)
-        dots_listbox.insert(len(dots), dot_string)
+        global drawing_old, drawing, scale_old, scale
+        scale_old = copy.deepcopy(scale)
+        drawing_old = copy.deepcopy(drawing)
+        for dot in drawing:
+            dot.x += x
+            dot.y += y
         dots_entry.delete(0, last='end')
+        find_and_build()
     except ValueError:
         dots_entry.delete(0, last='end')
-        box.showwarning("Ошибка ввода", "Вы ввели неверные координаты точки. Координаты точек\
+        box.showwarning("Ошибка ввода", "Вы ввели неверные значения смещения. Координаты точек\
          - вещественные числа, введённые через пробел")
 
-def delete_dot():
+def scale_canvas():
     try:
-        number = int(delete_dot_entry.get())
-        if number >= 0 and number <= dots_listbox.size():
-            dots.pop(number - 1)
-            dots_listbox.delete(number - 1)
-            for i in range(dots_listbox.size()):
-                dot_string = dots_listbox.get(i)
-                dot_string = dot_string.replace(")", "")
-                dot_string = dot_string.replace("(", "")
-                dot_string = dot_string.replace(";", "")
-                cur_num, x, y = map(float, dot_string.split())
-                cur_num = int(cur_num)
-                if cur_num >= number:
-                    cur_num -= 1
-                    dot_string = "{:d}) ({:6.4f}; {:6.4f})".format(cur_num, x, y)
-                    dots_listbox.delete(cur_num - 1)
-                    dots_listbox.insert(cur_num - 1, dot_string)
-            delete_dot_entry.delete(0, last='end')
-        else:
-            delete_dot_entry.delete(0, last='end')
-            box.showwarning("Ошибка ввода", "Вы ввели неверный номер точки. Уточние, пожалуйста")
+        global drawing_old, drawing, scale_old, scale
+        x, y, sc_x, sc_y = list(map(float, scale_entry.get().split()))   
+        scale_old = copy.deepcopy(scale)
+        drawing_old = copy.deepcopy(drawing)
+        for dot in drawing:
+            dot.x = sc_x * dot.x + (1 - sc_x) * x
+            dot.y = sc_y * dot.y + (1 - sc_y) * y 
+        scale_entry.delete(0, last='end')
+        find_and_build()
     except ValueError:
-        delete_dot_entry.delete(0, last='end')
-        box.showwarning("Ошибка ввода", "Вы ввели неверный номер точки. Номер точки - неотрицательное целое число")
+        scale_entry.delete(0, last='end')
+        box.showwarning("Ошибка ввода", "Вы ввели неверные параметры масштабирования (должны быть действительные числа через пробел)")
 
-def edit_dot():
+def rotate():
     try:
-        number, x, y = map(float, edit_dot_entry.get().split())
-        number = int(number)
-        if number >= 0 and number <= dots_listbox.size():
-            dot_string = "{:d}) ({:6.4f}; {:6.4f})".format(number, x, y)
-            new_dot = Dot(x, y)
-            dots[number - 1] = new_dot
-            dots_listbox.delete(number - 1)
-            dots_listbox.insert(number - 1, dot_string)
-            edit_dot_entry.delete(0, last='end')
-        else:
-            edit_dot_entry.delete(0, last='end')
-            box.showwarning("Ошибка ввода", "Вы ввели неверный номер точки. Номер точки - неотрицательное целое число")
+        global drawing_old, drawing, scale_old, scale
+        x, y, angle = map(float, rotate_entry.get().split())
+        scale_old = copy.deepcopy(scale)
+        drawing_old = copy.deepcopy(drawing)
+        angle = radians(angle)
+        for dot in drawing:
+            x_old = dot.x
+            y_old = dot.y
+            dot.x = x + (x_old - x) * cos(angle) + (y_old - y) * sin(angle)
+            dot.y = y + (y_old - y) * sin(angle) + (y_old - y) * cos(angle)
+        rotate_entry.delete(0, last='end')
+        find_and_build()
     except ValueError:
-        edit_dot_entry.delete(0, last='end')
-        box.showwarning("Ошибка ввода", "Номер точки - неотрицательное целое число, координаты - действительные числа")
+        rotate_entry.delete(0, last='end')
+        box.showwarning("Ошибка ввода", "Кооординаты и угол - действительные числа, ввод через пробел")
 
+def glob_scale():
+    try:
+        global scale, scale_old
+        new_scale = float(glob_scale_entry.get())
+        if new_scale <= 0:
+            raise ValueError
+        scale_old = scale
+        scale /= new_scale
+        glob_scale_entry.delete(0, last='end')
+        find_and_build()
+    except ValueError:
+        glob_scale_entry.delete(0, last='end')
+        box.showwarning("Ошибка ввода", "Во сколько раз хотите увеличить - действительное положительное число")
 
 def enter_dot_event(event):
-    enter_dot()
+    enter_shift()
+
+def glob_scale_event(event):
+    glob_scale()
 
 def del_dots():
     dots.clear()
     dots_entry.delete(0, last='end')
     dots_listbox.delete(0, dots_listbox.size())
 
-def delete_dot_event(event):
-    delete_dot()
+def scale_canvas_event(event):
+    scale_canvas()
 
-def edit_dot_event(event):
-    edit_dot()
+def rotate_event(event):
+    rotate()
 
 def is_parallel(line_1, line_2):
     if line_1.A == 0 and line_2.A == 0 or line_1.B == 0 and line_2.B == 0:
@@ -405,82 +403,162 @@ def find_scale():
 def build(triangle):
     if triangle:
         triangle.print_info()
-        triangle.print_info_to_entry()
         canvas.delete("all")
         triangle.draw(True, True)
         
+def get_coordinates(dot):
+    global border_x, border_y, scale, x0, y0
+    x = (dot.x - x0) / scale + border_x
+    y = size[1] + border_y - ((dot.y - y0) / scale)
+    return Dot(x, y)
+
+def epicycloid(t):
+    global a
+    global b
+    global shift_x, shift_y
+    global scale_center, scale_x, scale_y
+    global scale_x, scale_y, scale_center
+    x = (a + b) * cos(t) - a * cos((a + b) * t / a) + shift_x
+    # x = scale_x * x + (1 - scale_x) * scale_center.x
+    y = (a + b) * sin(t) - a * sin((a + b) * t / a) + shift_y
+    # y = scale_y * y + (1 - scale_x) * scale_center.x
+    return Dot(x, y)
+
+def draw_epicyclod():
+    global a
+    global b
+    global scale
+    global center
+    global lft
+    global rig
+    global delta
+    global radius
+
+    for dot_real in drawing: 
+        dot = get_coordinates(dot_real)
+        canvas.create_oval(dot.x - radius, dot.y - radius, dot.x + radius, dot.y + radius, fill="red")
+
+def backwards():
+    global drawing, drawing_old, scale, scale_old
+    scale = scale_old
+    drawing = copy.deepcopy(drawing_old)
+    find_and_build()
+
 
 def find_and_build():
-    if len(dots) < 3:
-        box.showwarning("Недостаточное количество точек", "Элементов недостаточно. Введите больше точек (как минимум 3)")
+    global scale, x0, y0
+    global a, b, center
+    canvas.delete("all")
+    draw_axes(scale, x0, y0)
+    draw_epicyclod()
+
+def fill_drawing():
+    global rig, lft, delta, center, drawing, drawing_old
+    drawing[0].x = center.x
+    drawing[0].y = center.y
+    index = 1
+    for t in range(lft, rig, delta):
+        drawing[index] = epicycloid(t)
+        index += 1
+    drawing_old = copy.deepcopy(drawing)
     
-    triangle = find()
-    if triangle:
-        build(triangle)
-    else:
-        box.showwarning("Не получилось", "Не получилось, непонятная ошибка")
     
 
-
-
+# Параметры эпициклоиды
+a = 1
+b = 3
+scale_old = 0.02
+scale = 0.02
+scale_orig = 0.02
+scale_center = Dot(0, 0)
+scale_x = 1
+scale_y = 1
 dots = []  # массив для точек
 lines = []  # координаты точек, задающих прямую
-scale = [1, 1]  # масштаб для canvas
 size = [1600, 600]
+center = Dot(0, 0)
+delta = 1
+lft = -2000
+rig = 2000
+drawing = [ Dot(0, 0) ] * ((rig - lft) // delta + 1)
+drawing_old = drawing[:]
+x0 = (center.x - a - b) * 11 / 3
+y0 = (center.y - a - b) * 5 / 3
+border_x = 80
+border_y = 60
+radius = 2
+
+shift_x = 0
+shift_y = 0
+
+fill_drawing()
+
+
+
+
+
+
+
+
 main_window = tk.Tk()
 main_window.geometry("1600x1500")
-main_window.title("Лаб. работа №1 \"Геометрическая задача\", Вариант 27")
+main_window.title("Лаб. работа №2 \"Преобразования изображения на плоскости\", Вариант 13")
 dots_listbox = tk.Listbox(master=main_window, font='Times 14', height=14)
 
 
-task_label1 = tk.Label(master=main_window, text='На плоскости дано множество точек. Найти такой треугольник с вершинами в этих точках, у которого разность макс.',
+task_label1 = tk.Label(master=main_window, text='Нарисовать исходную фигуру, затем осуществить её перенос, масштабирование и поворот. Фигура: эпициклоида',
                       font='Times 14')
-task_label2 = tk.Label(master=main_window, text='и мин. количества точек, попавших в каждый из 6-ти треугольников, образованных пересечением медиан, максимальна.',
-                      font='Times 14')
+# task_label2 = tk.Label(master=main_window, text='и мин. количества точек, попавших в каждый из 6-ти треугольников, образованных пересечением медиан, максимальна.',
+#                       font='Times 14')
 task_label1.grid(row=0, column=0, columnspan=100)
-task_label2.grid(row=1, column=0, columnspan=100)
+# task_label2.grid(row=1, column=0, columnspan=100)
 
-dots_label = tk.Label(master=main_window, text='Добавление точки. Введите координаты по х, у через \
+dots_label = tk.Label(master=main_window, text='Перенос изображение. Введите смещение по х, у через \
 пробел:', font='Times 14')
 dots_label.grid(row=2, column=0)
 dots_entry = tk.Entry(master=main_window, font='Times 14')
 dots_entry.bind("<Return>", enter_dot_event)
 dots_entry.grid(row=2, column=1)
-dots_button = tk.Button(master=main_window, text='Добавить точку', font='Times 14', command=enter_dot)
+dots_button = tk.Button(master=main_window, text='Перенести', font='Times 14', command=enter_shift)
 dots_button.grid(row=2, column=2)
 dots_listbox_label = tk.Label(master=main_window, text='Введённые точки:', font='Times 14')
-dots_listbox_label.grid(row=2, column=3)
-dots_listbox.grid(row=2, column=4, rowspan=4)
-dots_del_button = tk.Button(master=main_window, text='Сброс', font='Times 14', command=del_dots)
+# dots_listbox_label.grid(row=2, column=3)
+# dots_listbox.grid(row=2, column=4, rowspan=4)
+dots_del_button = tk.Button(master=main_window, text='Шаг назад', font='Times 14', command=backwards)
 dots_del_button.grid(row=3, column=2)
 
-delete_label = tk.Label(master=main_window, text='Удаление. Для удаления введите номер точки:', font='\
+scale_label = tk.Label(master=main_window, text='Масштабирование. Введите центр масштабирования и коэффициенты:', font='\
 Times 14')
-delete_label.grid(row=4, column=0)
-delete_dot_entry = tk.Entry(master=main_window, font='Times 14')
-delete_dot_entry.bind("<Return>", delete_dot_event)
-delete_dot_entry.grid(row=4, column=1)
-delete_dot_button = tk.Button(master=main_window, text='Удалить точку', font='Times 14', command=delete_dot)
+scale_label.grid(row=4, column=0)
+scale_entry = tk.Entry(master=main_window, font='Times 14')
+scale_entry.bind("<Return>", scale_canvas_event)
+scale_entry.grid(row=4, column=1)
+delete_dot_button = tk.Button(master=main_window, text='Удалить точку', font='Times 14', command=scale_canvas)
 delete_dot_button.grid(row=4, column=2)
 
-edit_dot_label = tk.Label(master=main_window, text='Редактирование. Введите номер точки и новые координаты, через пробел:', font='Times 14')
-edit_dot_label.grid(row=5, column=0)
-edit_dot_entry = tk.Entry(master=main_window, font='Times 14')
-edit_dot_entry.bind("<Return>", edit_dot_event)
-edit_dot_entry.grid(row=5, column=1)
-edit_dot_button = tk.Button(master=main_window, text='Редактировать', font='Times 14', command=edit_dot)
-edit_dot_button.grid(row=5, column=2)
+rotate_label = tk.Label(master=main_window, text='Поворот. Введите центр поворота и градус поворота: ', font='Times 14')
+rotate_label.grid(row=5, column=0)
+rotate_entry = tk.Entry(master=main_window, font='Times 14')
+rotate_entry.bind("<Return>", rotate_event)
+rotate_entry.grid(row=5, column=1)
+rotate_button = tk.Button(master=main_window, text='Повернуть', font='Times 14', command=rotate)
+rotate_button.grid(row=5, column=2)
 
-final_button = tk.Button(master=main_window, text='Найти треугольник, построить иллюстрацию', font='Arial\
+glob_scale_label = tk.Label(master=main_window, text='Изменить масштаб. Во сколько раз хотите увеличить масштаб: ', font='Times 14')
+glob_scale_label.grid(row=6, column=0)
+glob_scale_entry = tk.Entry(master=main_window, font='Times 14')
+glob_scale_entry.bind("<Return>", glob_scale_event)
+glob_scale_entry.grid(row=6, column=1)
+glob_scale_button = tk.Button(master=main_window, text='Изменить масштаб', font='Times 14', command=glob_scale)
+glob_scale_button.grid(row=6, column=2)
+
+final_button = tk.Button(master=main_window, text='Построить эпициклоиду', font='Arial\
  16', command=find_and_build)
-final_button.grid(row=6, column=0)
-results_label = tk.Label(master=main_window, text='Результаты: ', font='Times 16')
-results_label.grid(row=6, column=1)
-results_entry = tk.Entry(master=main_window, font='Times 16', width=60, state='disabled')
-results_entry.grid(row=6, column=2, columnspan=2)
+final_button.grid(row=7, column=1)
+
 
 canvas = ResizingCanvas(main_window, height=size[1], width=size[0], bg='white')
-canvas.grid(row=7, column=0, columnspan=7)
+canvas.grid(row=8, column=0, columnspan=7)
 
 for row_num in range(main_window.grid_size()[1]):
     main_window.rowconfigure(row_num, weight=1)
@@ -488,3 +566,4 @@ for col_num in range(main_window.grid_size()[0]):
     main_window.columnconfigure(col_num, weight=1)
 
 main_window.mainloop()
+
