@@ -256,12 +256,18 @@ def rotate():
         scale_old = copy.deepcopy(scale)
         drawing_old = copy.deepcopy(drawing)
         angle = radians(angle)
-        for dot in drawing:
-            x_old = dot.x
-            y_old = dot.y
-            dot.x = x + (x_old - x) * cos(angle) + (y_old - y) * sin(angle)
-            dot.y = y + (y_old - y) * sin(angle) + (y_old - y) * cos(angle)
+        # for i in range(100):
+        #     print(drawing[i])
+        print(sin(angle))
+        for i in range(len(drawing)):
+            x_old = drawing[i].x
+            y_old = drawing[i].y
+            drawing[i].x = x + (x_old - x) * cos(angle) + (y_old - y) * sin(angle)
+            drawing[i].y = y - (x_old - x) * sin(angle) + (y_old - y) * cos(angle)
         rotate_entry.delete(0, last='end')
+        # print()
+        # for i in range(100):
+        #     print(drawing[i])
         find_and_build()
     except ValueError:
         rotate_entry.delete(0, last='end')
@@ -475,7 +481,7 @@ scale_x = 1
 scale_y = 1
 dots = []  # массив для точек
 lines = []  # координаты точек, задающих прямую
-size = [1600, 600]
+size = [1600, 830]
 center = Dot(0, 0)
 delta = 1
 lft = -2000
@@ -565,5 +571,6 @@ for row_num in range(main_window.grid_size()[1]):
 for col_num in range(main_window.grid_size()[0]):
     main_window.columnconfigure(col_num, weight=1)
 
+find_and_build()
 main_window.mainloop()
 
