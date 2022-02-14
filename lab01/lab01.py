@@ -158,15 +158,15 @@ class Triangle(object):
     def print_info(self):
         print(str(self.a) + ", " + str(self.b) + ", " + str(self.c))
     
-    def print_info_to_entry(self):
+    def print_info_to_entry(self, i, j, k):
         results_entry.configure(state='normal')
         results_entry.delete(0, last='end')
-        string = "треугольник с вершинами в точках " + str(self.a) + ", " + str(self.b) + ", " + str(self.c)
+        string = f"Вершины в точках {i:2d})" + str(self.a) + f", {j:2d})" + str(self.b) + f", {k:2d})" + str(self.c)
         results_entry.insert(0, string)
         results_entry.configure(state='readonly')
 
             
-    def draw(self, with_medians, with_dots):
+    def draw(self, with_medians, with_dots, i, j, k):
 
         canvas.delete("all")
         max_x = max(self.a.x, self.b.x, self.c.x)
@@ -219,18 +219,22 @@ class Triangle(object):
             canvas.create_line(middle_ab_x_im, middle_ab_y_im, cx_im, cy_im, width=2, fill="grey")
             canvas.create_line(middle_bc_x_im, middle_bc_y_im, ax_im, ay_im, width=2, fill="grey")
             canvas.create_line(middle_ac_x_im, middle_ac_y_im, bx_im, by_im, width=2, fill="grey")
+        shift = 15
         if with_dots:
             radius = 4
-            for dot in dots:
-                if self.has(dot):
+            for i, dot in enumerate(dots):
+                if dot != self.a and dot != self.b and dot != self.c and self.has(dot):
                     x_im = dot.x / scale - x0 / scale + x
                     y_im = size[1] + border - ((dot.y - y0) / scale)
                     canvas.create_oval(x_im - radius, y_im - radius, x_im + radius, y_im + radius, fill="red")
-                    canvas.create_text(x_im, y_im + shift, text=f"({dot.x:4.3f}; {dot.y:4.3f})", font="Times 14")
-        shift = 15
-        canvas.create_text(ax_im, ay_im + shift, text=f"({self.a.x:4.3f}; {self.a.y:4.3f})", font="Times 14")
-        canvas.create_text(bx_im, by_im + shift, text=f"({self.b.x:4.3f}; {self.b.y:4.3f})", font="Times 14")
-        canvas.create_text(cx_im, cy_im + shift, text=f"({self.c.x:4.3f}; {self.c.y:4.3f})", font="Times 14")  
+                    canvas.create_text(x_im, y_im + shift, text=f"{i + 1:2d}) ({dot.x:4.3f}; {dot.y:4.3f})", font="Times 14")
+        radius = 4
+        canvas.create_oval(ax_im - radius, ay_im - radius, ax_im + radius, ay_im + radius, fill="red")
+        canvas.create_oval(bx_im - radius, by_im - radius, bx_im + radius, by_im + radius, fill="red")
+        canvas.create_oval(cx_im - radius, cy_im - radius, cx_im + radius, cy_im + radius, fill="red")
+        canvas.create_text(ax_im, ay_im + shift, text=f"{i:2d}) ({self.a.x:4.3f}; {self.a.y:4.3f})", font="Times 14")
+        canvas.create_text(bx_im, by_im + shift, text=f"{j:2d}) ({self.b.x:4.3f}; {self.b.y:4.3f})", font="Times 14")
+        canvas.create_text(cx_im, cy_im + shift, text=f"{k:2d}) ({self.c.x:4.3f}; {self.c.y:4.3f})", font="Times 14")  
 
 def enter_dot():
     try:
@@ -241,7 +245,7 @@ def enter_dot():
         dots_listbox.insert(len(dots), dot_string)
         dots_entry.delete(0, last='end')
     except ValueError:
-        dots_entry.delete(0, last='end')
+        # dots_entry.delete(0, last='end')
         box.showwarning("Ошибка ввода", "Вы ввели неверные координаты точки. Координаты точек\
          - вещественные числа, введённые через пробел")
 
@@ -268,7 +272,7 @@ def delete_dot():
             delete_dot_entry.delete(0, last='end')
             box.showwarning("Ошибка ввода", "Вы ввели неверный номер точки. Уточние, пожалуйста")
     except ValueError:
-        delete_dot_entry.delete(0, last='end')
+        # delete_dot_entry.delete(0, last='end')
         box.showwarning("Ошибка ввода", "Вы ввели неверный номер точки. Номер точки - неотрицательное целое число")
 
 def edit_dot():
@@ -286,7 +290,7 @@ def edit_dot():
             edit_dot_entry.delete(0, last='end')
             box.showwarning("Ошибка ввода", "Вы ввели неверный номер точки. Номер точки - неотрицательное целое число")
     except ValueError:
-        edit_dot_entry.delete(0, last='end')
+        # edit_dot_entry.delete(0, last='end')
         box.showwarning("Ошибка ввода", "Номер точки - неотрицательное целое число, координаты - действительные числа")
 
 
@@ -348,19 +352,28 @@ def process(triangle):
 def find():
     top_result = -1
     res_triangle = None
-    for a in dots:
-        for b in dots:
-            for c in dots:
+    i_res = 0
+    j_res = 0
+    k_res = 0
+    for i, a in enumerate(dots):
+        for j, b in enumerate(dots):
+            for k, c in enumerate(dots):
                 if a != b and a != c and b != c:
                     triangle = Triangle(a, b, c)
                     if not res_triangle and triangle:
                         res_triangle = triangle
+                        i_res = i
+                        j_res = j
+                        k_res = k
                     if abs(triangle.square) > 1e-7 and triangle.median_middle != None:
                         result = process(triangle)
                         if result > top_result:
                             top_result = result
                             res_triangle = triangle
-    return res_triangle
+                            i_res = i
+                            j_res = j
+                            k_res = k
+    return res_triangle, i_res + 1, j_res + 1, k_res + 1
 
 
 def is_inside(dot):
@@ -406,24 +419,24 @@ def find_scale():
     scale[1] = max(abs(max_x - min_x) / size[0] * 2, abs(max_y - min_y) / size[1] * 2) * 1.1
 
 
-def build(triangle):
+def build(triangle, i, j, k):
     if triangle:
         triangle.print_info()
-        triangle.print_info_to_entry()
+        triangle.print_info_to_entry(i, j, k)
         canvas.delete("all")
-        triangle.draw(True, True)
+        triangle.draw(True, True, i, j, k)
         
 
 def find_and_build():
     if len(dots) < 3:
         box.showwarning("Недостаточное количество точек", "Элементов недостаточно. Введите больше точек (как минимум 3)")
         return 
-    triangle = find()
+    triangle, i, j, k = find()
     if triangle:
         if abs(triangle.square) < 1e-7:
             box.showwarning("Все треугольники вырожденные", "Не удалось найти подходящий треугольник. Попробуйте добавить больше точек в множество")
         else:
-            build(triangle)
+            build(triangle, i, j, k)
     
 
 
@@ -482,7 +495,7 @@ final_button.grid(row=6, column=0)
 results_label = tk.Label(master=main_window, text='Результаты: ', font='Times 16')
 results_label.grid(row=6, column=1)
 results_entry = tk.Entry(master=main_window, font='Times 16', width=60, state='disabled')
-results_entry.grid(row=6, column=2, columnspan=2)
+results_entry.grid(row=6, column=2, columnspan=3)
 
 canvas = ResizingCanvas(main_window, height=size[1], width=size[0], bg='white')
 canvas.grid(row=7, column=0, columnspan=7)
