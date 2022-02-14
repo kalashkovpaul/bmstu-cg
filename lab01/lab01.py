@@ -416,7 +416,10 @@ def find_and_build():
     
     triangle = find()
     if triangle:
-        build(triangle)
+        if abs(triangle.square) < 1e-7:
+            box.showwarning("Все треугольники вырожденные", "Не удалось найти подходящий треугольник. Попробуйте добавить больше точек в множество")
+        else:
+            build(triangle)
     else:
         box.showwarning("Не получилось", "Не получилось, непонятная ошибка")
     
