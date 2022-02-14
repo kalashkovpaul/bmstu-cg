@@ -440,6 +440,9 @@ def draw_epicyclod():
     global delta
     global radius
 
+    dot = get_coordinates(drawing[0])
+    shift = 15
+    canvas.create_text(dot.x, dot.y + shift, text=f"({drawing[0].x:4.3f}; {drawing[0].y:4.3f})", font="Times 14")  
     for dot_real in drawing: 
         dot = get_coordinates(dot_real)
         canvas.create_oval(dot.x - radius, dot.y - radius, dot.x + radius, dot.y + radius, fill="red")
@@ -481,7 +484,7 @@ scale_x = 1
 scale_y = 1
 dots = []  # массив для точек
 lines = []  # координаты точек, задающих прямую
-size = [1600, 830]
+size = [1600, 600]
 center = Dot(0, 0)
 delta = 1
 lft = -2000
@@ -571,6 +574,5 @@ for row_num in range(main_window.grid_size()[1]):
 for col_num in range(main_window.grid_size()[0]):
     main_window.columnconfigure(col_num, weight=1)
 
-find_and_build()
 main_window.mainloop()
 

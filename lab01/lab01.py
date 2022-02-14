@@ -226,7 +226,11 @@ class Triangle(object):
                     x_im = dot.x / scale - x0 / scale + x
                     y_im = size[1] + border - ((dot.y - y0) / scale)
                     canvas.create_oval(x_im - radius, y_im - radius, x_im + radius, y_im + radius, fill="red")
-            
+                    canvas.create_text(x_im, y_im + shift, text=f"({dot.x:4.3f}; {dot.y:4.3f})", font="Times 14")
+        shift = 15
+        canvas.create_text(ax_im, ay_im + shift, text=f"({self.a.x:4.3f}; {self.a.y:4.3f})", font="Times 14")
+        canvas.create_text(bx_im, by_im + shift, text=f"({self.b.x:4.3f}; {self.b.y:4.3f})", font="Times 14")
+        canvas.create_text(cx_im, cy_im + shift, text=f"({self.c.x:4.3f}; {self.c.y:4.3f})", font="Times 14")  
 
 def enter_dot():
     try:
@@ -413,15 +417,13 @@ def build(triangle):
 def find_and_build():
     if len(dots) < 3:
         box.showwarning("Недостаточное количество точек", "Элементов недостаточно. Введите больше точек (как минимум 3)")
-    
+        return 
     triangle = find()
     if triangle:
         if abs(triangle.square) < 1e-7:
             box.showwarning("Все треугольники вырожденные", "Не удалось найти подходящий треугольник. Попробуйте добавить больше точек в множество")
         else:
             build(triangle)
-    else:
-        box.showwarning("Не получилось", "Не получилось, непонятная ошибка")
     
 
 
