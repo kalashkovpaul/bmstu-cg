@@ -3,11 +3,12 @@
 # и поворот.
 # Фигура: эпициклоида
 
-from math import cos, radians, sin
+from math import cos, radians, sin, pi
 import tkinter as tk
 import tkinter.messagebox as box
 from tkinter import *
 import copy
+from turtle import right
 
 
 # a subclass of Canvas for dealing with resizing of windows
@@ -221,56 +222,82 @@ class Triangle(object):
 def enter_shift():
     try:
         x, y = map(float, dots_entry.get().split())
-        global drawing_old, drawing, scale_old, scale
+        global drawing_old, drawing, scale_old, scale, rect, rect_old, lines, lines_old
+        rect_old = copy.deepcopy(rect)
         scale_old = copy.deepcopy(scale)
         drawing_old = copy.deepcopy(drawing)
+        lines_old = copy.deepcopy(lines)
         for dot in drawing:
             dot.x += x
             dot.y += y
-        dots_entry.delete(0, last='end')
+        for dot in rect:
+            dot.x += x
+            dot.y += y
+        for line in lines:
+            for dot in line:
+                dot.x += x
+                dot.y += y
+        
+        # dots_entry.delete(0, last='end')
         find_and_build()
     except ValueError:
-        dots_entry.delete(0, last='end')
+        # dots_entry.delete(0, last='end')
         box.showwarning("Ошибка ввода", "Вы ввели неверные значения смещения. Координаты точек\
          - вещественные числа, введённые через пробел")
 
 def scale_canvas():
     try:
-        global drawing_old, drawing, scale_old, scale
+        global drawing_old, drawing, scale_old, scale, rect, rect_old, lines, lines_old
         x, y, sc_x, sc_y = list(map(float, scale_entry.get().split()))   
+        rect_old = copy.deepcopy(rect)
         scale_old = copy.deepcopy(scale)
         drawing_old = copy.deepcopy(drawing)
+        lines_old = copy.deepcopy(lines)
         for dot in drawing:
             dot.x = sc_x * dot.x + (1 - sc_x) * x
             dot.y = sc_y * dot.y + (1 - sc_y) * y 
-        scale_entry.delete(0, last='end')
+        for dot in rect:
+            dot.x = sc_x * dot.x + (1 - sc_x) * x
+            dot.y = sc_y * dot.y + (1 - sc_y) * y 
+        for line in lines:
+            for dot in line:
+                dot.x = sc_x * dot.x + (1 - sc_x) * x
+                dot.y = sc_y * dot.y + (1 - sc_y) * y 
+
+        # scale_entry.delete(0, last='end')
         find_and_build()
     except ValueError:
-        scale_entry.delete(0, last='end')
+        # scale_entry.delete(0, last='end')
         box.showwarning("Ошибка ввода", "Вы ввели неверные параметры масштабирования (должны быть действительные числа через пробел)")
 
 def rotate():
     try:
-        global drawing_old, drawing, scale_old, scale
+        global drawing_old, drawing, scale_old, scale, lines, lines_old
         x, y, angle = map(float, rotate_entry.get().split())
+        rect_old = copy.deepcopy(rect)
         scale_old = copy.deepcopy(scale)
         drawing_old = copy.deepcopy(drawing)
+        lines_old = copy.deepcopy(lines)
         angle = radians(angle)
-        # for i in range(100):
-        #     print(drawing[i])
-        print(sin(angle))
         for i in range(len(drawing)):
             x_old = drawing[i].x
             y_old = drawing[i].y
             drawing[i].x = x + (x_old - x) * cos(angle) + (y_old - y) * sin(angle)
             drawing[i].y = y - (x_old - x) * sin(angle) + (y_old - y) * cos(angle)
-        rotate_entry.delete(0, last='end')
-        # print()
-        # for i in range(100):
-        #     print(drawing[i])
+        for i in range(len(rect)):
+            x_old = rect[i].x
+            y_old = rect[i].y
+            rect[i].x = x + (x_old - x) * cos(angle) + (y_old - y) * sin(angle)
+            rect[i].y = y - (x_old - x) * sin(angle) + (y_old - y) * cos(angle)
+        for line in lines:
+            for i in range(len(line)):
+                x_old = line[i].x
+                y_old = line[i].y
+                line[i].x = x + (x_old - x) * cos(angle) + (y_old - y) * sin(angle)
+                line[i].y = y - (x_old - x) * sin(angle) + (y_old - y) * cos(angle)
         find_and_build()
     except ValueError:
-        rotate_entry.delete(0, last='end')
+        # rotate_entry.delete(0, last='end')
         box.showwarning("Ошибка ввода", "Кооординаты и угол - действительные числа, ввод через пробел")
 
 def glob_scale():
@@ -281,11 +308,15 @@ def glob_scale():
             raise ValueError
         scale_old = scale
         scale /= new_scale
-        glob_scale_entry.delete(0, last='end')
+        # glob_scale_entry.delete(0, last='end')
         find_and_build()
     except ValueError:
-        glob_scale_entry.delete(0, last='end')
+        # glob_scale_entry.delete(0, last='end')
         box.showwarning("Ошибка ввода", "Во сколько раз хотите увеличить - действительное положительное число")
+
+def refill():
+    fill_drawing()
+    find_and_build()
 
 def enter_dot_event(event):
     enter_shift()
@@ -295,8 +326,8 @@ def glob_scale_event(event):
 
 def del_dots():
     dots.clear()
-    dots_entry.delete(0, last='end')
-    dots_listbox.delete(0, dots_listbox.size())
+    # dots_entry.delete(0, last='end')
+    # dots_listbox.delete(0, dots_listbox.size())
 
 def scale_canvas_event(event):
     scale_canvas()
@@ -430,6 +461,14 @@ def epicycloid(t):
     # y = scale_y * y + (1 - scale_x) * scale_center.x
     return Dot(x, y)
 
+def create_lines():
+    global lines
+
+    for line in lines:
+        fr = get_coordinates(line[0])
+        to = get_coordinates(line[1])
+        canvas.create_line(fr.x, fr.y, to.x, to.y, width=2, fill="black")
+
 def draw_epicyclod():
     global a
     global b
@@ -439,18 +478,48 @@ def draw_epicyclod():
     global rig
     global delta
     global radius
+    global rect
 
+    left_low = get_coordinates(rect[0])
+    left_high = get_coordinates(rect[1])
+    right_high = get_coordinates(rect[2])
+    right_low = get_coordinates(rect[3])
+
+    canvas.create_polygon(left_low.x, left_low.y, left_high.x, left_high.y, \
+        right_high.x, right_high.y, right_low.x, right_low.y, width=3, fill="white", outline="black")
+
+    create_lines()
+    epicycloid_dots = [(0, 0)]  * (len(drawing) - 1)
+    j = 0
+    for i in range(2, len(drawing)): 
+        dot = get_coordinates(drawing[i])
+        epicycloid_dots[j] = (dot.x, dot.y)
+        j += 1
+    epicycloid_dots[len(epicycloid_dots) - 1] = epicycloid_dots[0]
+    canvas.create_polygon(epicycloid_dots, fill="white", outline="red", width=3)
     dot = get_coordinates(drawing[0])
+    canvas.create_oval(dot.x - radius, dot.y - radius, dot.x + radius, dot.y + radius, fill="red")
     shift = 15
     canvas.create_text(dot.x, dot.y + shift, text=f"({drawing[0].x:4.3f}; {drawing[0].y:4.3f})", font="Times 14")  
-    for dot_real in drawing: 
-        dot = get_coordinates(dot_real)
-        canvas.create_oval(dot.x - radius, dot.y - radius, dot.x + radius, dot.y + radius, fill="red")
+
+        # canvas.create_line(previous.x, previous.y, dot.x, dot.y, fill="red")
+        # previous = dot
+        # if i == 10:
+        #     break
+        # canvas.create_oval(dot.x - radius, dot.y - radius, dot.x + radius, dot.y + radius, fill="red")
 
 def backwards():
-    global drawing, drawing_old, scale, scale_old
-    scale = scale_old
+    global drawing, drawing_old, scale, scale_old, rect, rect_old, lines, lines_old
+    t = copy.deepcopy(rect)
+    rect = copy.deepcopy(rect_old)
+    rect_old = t
+    scale, scale_old = scale_old, scale
+    t = copy.deepcopy(drawing)
     drawing = copy.deepcopy(drawing_old)
+    drawing_old = t
+    t = copy.deepcopy(lines)
+    lines = copy.deepcopy(lines_old)
+    lines_old = t
     find_and_build()
 
 
@@ -458,24 +527,54 @@ def find_and_build():
     global scale, x0, y0
     global a, b, center
     canvas.delete("all")
-    draw_axes(scale, x0, y0)
     draw_epicyclod()
+    draw_axes(scale, x0, y0)
 
 def fill_drawing():
-    global rig, lft, delta, center, drawing, drawing_old
+    global rig, lft, delta, center, drawing, drawing_old, rect, rect_old
+    global scale_old, scale, scale_orig, scale_x, scale_y, scale_center
+    scale_old = 0.02
+    scale = 0.02
+    scale_orig = 0.02
+    scale_center = Dot(0, 0)
+    scale_x = 1
+    scale_y = 1
     drawing[0].x = center.x
     drawing[0].y = center.y
     index = 1
-    for t in range(lft, rig, delta):
+    t = lft
+    while t < rig and index < len(drawing):
         drawing[index] = epicycloid(t)
         index += 1
+        t += delta
     drawing_old = copy.deepcopy(drawing)
-    
+    rect = [Dot(-7, -5), Dot(-7, 5), Dot(7, 5), Dot(7, -5)]
+    rect_old = copy.deepcopy(rect)
     
 
 # Параметры эпициклоиды
 a = 1
 b = 3
+
+
+
+rect = [Dot(-7, -5), Dot(-7, 5), Dot(7, 5), Dot(7, -5)]
+
+lines = [
+    [Dot(-7, -5), Dot(3, 5)], 
+    [Dot(-7, -3), Dot(1, 5)],
+    [Dot(-7, -1), Dot(-1, 5)],
+    [Dot(-7, 1), Dot(-3, 5)],
+    [Dot(-7, 3), Dot(-5, 5)],
+    [Dot(-5, -5), Dot(5, 5)],
+    [Dot(-3, -5), Dot(7, 5)],
+    [Dot(-1, -5), Dot(7, 3)],
+    [Dot(1, -5), Dot(7, 1)],
+    [Dot(3, -5), Dot(7, -1)],
+    [Dot(5, -5), Dot(7, -3)]
+]
+lines_old = copy.deepcopy(lines)
+rect_old = copy.deepcopy(rect)
 scale_old = 0.02
 scale = 0.02
 scale_orig = 0.02
@@ -483,13 +582,12 @@ scale_center = Dot(0, 0)
 scale_x = 1
 scale_y = 1
 dots = []  # массив для точек
-lines = []  # координаты точек, задающих прямую
 size = [1600, 600]
 center = Dot(0, 0)
-delta = 1
-lft = -2000
-rig = 2000
-drawing = [ Dot(0, 0) ] * ((rig - lft) // delta + 1)
+delta = 0.001
+lft = 0
+rig = 2 * pi
+drawing = [ Dot(0, 0) ] * int(((rig - lft) / delta) + 1)
 drawing_old = drawing[:]
 x0 = (center.x - a - b) * 11 / 3
 y0 = (center.y - a - b) * 5 / 3
@@ -542,7 +640,7 @@ scale_label.grid(row=4, column=0)
 scale_entry = tk.Entry(master=main_window, font='Times 14')
 scale_entry.bind("<Return>", scale_canvas_event)
 scale_entry.grid(row=4, column=1)
-delete_dot_button = tk.Button(master=main_window, text='Удалить точку', font='Times 14', command=scale_canvas)
+delete_dot_button = tk.Button(master=main_window, text='Промасштабировать', font='Times 14', command=scale_canvas)
 delete_dot_button.grid(row=4, column=2)
 
 rotate_label = tk.Label(master=main_window, text='Поворот. Введите центр поворота и градус поворота: ', font='Times 14')
@@ -564,6 +662,9 @@ glob_scale_button.grid(row=6, column=2)
 final_button = tk.Button(master=main_window, text='Построить эпициклоиду', font='Arial\
  16', command=find_and_build)
 final_button.grid(row=7, column=1)
+
+refill_button = tk.Button(master=main_window, text='К началу', font='Times 14', command=refill)
+refill_button.grid(row=7, column=2)
 
 
 canvas = ResizingCanvas(main_window, height=size[1], width=size[0], bg='white')
