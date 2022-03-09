@@ -531,8 +531,22 @@ def find_and_build():
     draw_axes(scale, x0, y0)
 
 def fill_drawing():
-    global rig, lft, delta, center, drawing, drawing_old, rect, rect_old
+    global rig, lft, delta, center, drawing, drawing_old, rect, rect_old, lines, lines_old
     global scale_old, scale, scale_orig, scale_x, scale_y, scale_center
+    lines = [
+        [Dot(-7, -5), Dot(3, 5)], 
+        [Dot(-7, -3), Dot(1, 5)],
+        [Dot(-7, -1), Dot(-1, 5)],
+        [Dot(-7, 1), Dot(-3, 5)],
+        [Dot(-7, 3), Dot(-5, 5)],
+        [Dot(-5, -5), Dot(5, 5)],
+        [Dot(-3, -5), Dot(7, 5)],
+        [Dot(-1, -5), Dot(7, 3)],
+        [Dot(1, -5), Dot(7, 1)],
+        [Dot(3, -5), Dot(7, -1)],
+        [Dot(5, -5), Dot(7, -3)]
+    ]
+    lines_old = copy.deepcopy(lines)
     scale_old = 0.02
     scale = 0.02
     scale_orig = 0.02
