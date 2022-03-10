@@ -4,7 +4,6 @@
 #include <QColorDialog>
 #include <QElapsedTimer>
 #include <cmath>
-#include <iostream>
 
 #include "line.h"
 #include "dialog.h"
@@ -17,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	scene(new QGraphicsScene(0, 0, 720, 720))
 {
     ladderData.resize(4);
-    std::cout << ladderData.size() << std::endl;
     ladderData[0].resize(180);
     ladderData[0][0] = -1;
 	ui->setupUi(this);
@@ -138,8 +136,7 @@ void MainWindow::on_drawSunPushButton_clicked()
 	for (int angle = 0; angle < 360; angle += dangle) {
 		const int x2 = 360 + round(length * cos(toRadians(angle)));
 		const int y2 = 360 - round(length * sin(toRadians(angle)));
-        if (!drawLineTest(QLine(360, 360, x2, y2), canvas))
-            drawPoint(QPoint(x2, y2));
+        drawLine(QLine(360, 360, x2, y2), canvas);
 	}
 	imageView();
 }
@@ -218,7 +215,6 @@ void MainWindow::on_statisticsPushButton_clicked()
 }
 
 void MainWindow::on_statisticsLadderPushButton_clicked() {
-    std::cout << "Hello Ladder";
     if (ladderData[0][0] == -1) {
         int length = 100;
         int dangle = 1;

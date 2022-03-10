@@ -46,7 +46,7 @@ Ladder::Ladder(QVector<QVector<double>>& data, QWidget *parent) :
     ui->BresenhemPlot->graph(0)->setData(x, data[1]);
     ui->BresenhemPlot->graph(0)->rescaleAxes();
     ui->BresenhemPlot->plotLayout()->insertRow(0);
-    ui->BresenhemPlot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->BresenhemPlot, "Брезенхем", QFont("sans", 12, QFont::Bold)));
+    ui->BresenhemPlot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->BresenhemPlot, "Брезенхем (с действительными данными)", QFont("sans", 12, QFont::Bold)));
 
     ui->BresenhemIntegerPlot->addGraph();
     ui->BresenhemIntegerPlot->graph(0)->setPen(QPen(QColor(0xff, 0, 0), 2));
@@ -63,7 +63,7 @@ Ladder::Ladder(QVector<QVector<double>>& data, QWidget *parent) :
     ui->BresenhemIntegerPlot->graph(0)->setData(x, data[1]);
     ui->BresenhemIntegerPlot->graph(0)->rescaleAxes();
     ui->BresenhemIntegerPlot->plotLayout()->insertRow(0);
-    ui->BresenhemIntegerPlot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->BresenhemIntegerPlot, "Брезенхем (с одной интенсивностью)", QFont("sans", 12, QFont::Bold)));
+    ui->BresenhemIntegerPlot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->BresenhemIntegerPlot, "Брезенхем (с целыми числами)", QFont("sans", 12, QFont::Bold)));
 
 
     ui->BresenhemAntiPlot->addGraph();
@@ -81,7 +81,7 @@ Ladder::Ladder(QVector<QVector<double>>& data, QWidget *parent) :
     ui->BresenhemAntiPlot->graph(0)->setData(x, data[1]);
     ui->BresenhemAntiPlot->graph(0)->rescaleAxes();
     ui->BresenhemAntiPlot->plotLayout()->insertRow(0);
-    ui->BresenhemAntiPlot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->BresenhemAntiPlot, "Брезенхем с устранением ступенчатости", QFont("sans", 12, QFont::Bold)));
+    ui->BresenhemAntiPlot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->BresenhemAntiPlot, "Брезенхем (с устранением ступенчатости)", QFont("sans", 12, QFont::Bold)));
 
 }
 

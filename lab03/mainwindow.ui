@@ -161,7 +161,7 @@
      <item>
       <widget class="QRadioButton" name="bresenhamFloatRadioButton">
        <property name="text">
-        <string>Брезенхем</string>
+        <string>Брезенхем (действительные данные)</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -171,14 +171,14 @@
      <item>
       <widget class="QRadioButton" name="bresenhamIntegerRadioButton">
        <property name="text">
-        <string>Брезенхем (одна интенсивность)</string>
+        <string>Брезенхем (целочисленные данные)</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QRadioButton" name="bresenhamAntialiasedRadioButton">
        <property name="text">
-        <string>Брезенхем с устранением ступенчатости</string>
+        <string>Брезенхем (с устранением ступенчатости)</string>
        </property>
       </widget>
      </item>

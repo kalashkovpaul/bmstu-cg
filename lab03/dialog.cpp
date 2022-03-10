@@ -45,9 +45,9 @@ Dialog::Dialog(const QVector<QVector<double>> &ns, int M, QWidget *parent) :
 	ui->customPlot->graph(5)->setData(x, ns[5]);
 
     ui->customPlot->graph(0)->setName("ЦДА");
-    ui->customPlot->graph(1)->setName("Брезенхем");
-    ui->customPlot->graph(2)->setName("Брезенхем (с одной интенсивностью)");
-    ui->customPlot->graph(3)->setName("Брезенхем с устранением ступенчатости");
+    ui->customPlot->graph(1)->setName("Брезенхем ( с действительными данными)");
+    ui->customPlot->graph(2)->setName("Брезенхем (с целочисленными данными)");
+    ui->customPlot->graph(3)->setName("Брезенхем (с устранением ступенчатости)");
     ui->customPlot->graph(4)->setName("Ву");
     ui->customPlot->graph(5)->setName("Стандартный (Qt)");
 

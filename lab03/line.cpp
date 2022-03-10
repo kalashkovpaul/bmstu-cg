@@ -1,6 +1,5 @@
 #include "line.h"
 #include <cmath>
-#include <iostream>
 
 template <typename T> int sgn1(T val) {
 	return (val > 0) - (val < 0);
@@ -45,11 +44,13 @@ int dda(const QLine &line, Canvas &canvas)
 	double yf = line.p1().y();
     int xPrev = 0;
     int yPrev = 0;
+    int x = 0;
+    int y = 0;
 
 	// Начало основного цикла
 	for (int i = 0; i <= length; ++i) {
-		const int x = qRound(xf);
-		const int y = qRound(yf);
+        x = qRound(xf);
+        y = qRound(yf);
         check_curr_point;
         if (i != 0 && xPrev != x && yPrev != y)
             ladders++;
@@ -59,7 +60,8 @@ int dda(const QLine &line, Canvas &canvas)
 		xf += dx;
 		yf += dy;
 	}
-    std::cout << ladders << std::endl;
+    if (x != line.p2().x() || y != line.p2().y())
+        ok = false;
     if (!ok)
         drawPoint(line.p2(), canvas);
     return ladders;
@@ -113,7 +115,7 @@ int bresenhamFloat(const QLine &line, Canvas &canvas)
     int yPrev = 0;
 
 	// Начало основного цикла
-	for (int i = 0; i <= dx; ++i) {
+    for (int i = 0; i <= dx + 1; ++i) {
         if (i != 0 && xPrev != x && yPrev != y)
             ladders++;
         check_curr_point;
@@ -124,7 +126,7 @@ int bresenhamFloat(const QLine &line, Canvas &canvas)
 			if (swapped)
 				x += sx;
 			else
-				y += sy;
+                y += sy;
 			--e;
 		}
 		if (e < 0) {
@@ -135,7 +137,8 @@ int bresenhamFloat(const QLine &line, Canvas &canvas)
 			e += m;
 		}
 	}
-    std::cout << ladders << std::endl;
+    if (x != line.p2().x() || y != line.p2().y())
+        ok = false;
     if (!ok)
         drawPoint(line.p2(), canvas);
     return ladders;
@@ -200,10 +203,10 @@ int bresenhamInteger(const QLine &line, Canvas &canvas)
 			e += dy2;
 		}
 	}
+    if (x != line.p2().x() || y != line.p2().y())
+        ok = false;
     if (!ok)
         drawPoint(line.p2(), canvas);
-
-    std::cout << ladders << std::endl;
     return ladders;
 }
 
@@ -272,10 +275,11 @@ int bresenhamAntialiased(const QLine &line, Canvas &canvas)
 			e -= w;
 		}
 	}
+    if (x != line.p2().x() || y != line.p2().y())
+        ok = false;
     if (!ok)
         drawPoint(line.p2(), canvas);
 
-    std::cout << ladders << std::endl;
     return ladders;
 }
 
