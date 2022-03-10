@@ -4,9 +4,11 @@
 #include <QColorDialog>
 #include <QElapsedTimer>
 #include <cmath>
+#include <iostream>
 
 #include "line.h"
 #include "dialog.h"
+#include "ladder.h"
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -14,6 +16,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	fgColor(defaultFgColor),
 	scene(new QGraphicsScene(0, 0, 720, 720))
 {
+    ladderData.resize(4);
+    std::cout << ladderData.size() << std::endl;
+    ladderData[0].resize(180);
+    ladderData[0][0] = -1;
 	ui->setupUi(this);
 
 	ui->graphicsView->setScene(scene);
@@ -74,6 +80,22 @@ bool MainWindow::drawLine(const QLine &line, Canvas &canvas) {
 	return true;
 }
 
+bool MainWindow::drawLineTest(const QLine &line, Canvas &canvas) {
+    if (ui->ddaRadioButton->isChecked())
+        return ddaTest(line, canvas);
+    else if (ui->bresenhamFloatRadioButton->isChecked())
+        return bresenhamFloatTest(line, canvas);
+    else if (ui->bresenhamIntegerRadioButton->isChecked())
+        return bresenhamIntegerTest(line, canvas);
+    else if (ui->bresenhamAntialiasedRadioButton->isChecked())
+        return bresenhamAntialiasedTest(line, canvas);
+    else if (ui->defaultQtRadioButton->isChecked())
+        return defaultQtTest(line, canvas);
+    else if (ui->wuRadioButton->isChecked())
+        return wuTest(line, canvas);
+    return true;
+}
+
 void MainWindow::drawPoint(const QPoint &point)
 {
 	QPixmap pixmap = QPixmap::fromImage(image);
@@ -101,7 +123,7 @@ void MainWindow::on_drawLinePushButton_clicked()
 
 	drawLine(line, canvas);
 
-	ui->statusBar->showMessage(QString::number(timer.nsecsElapsed() / 1000.0) + " μs");
+    ui->statusBar->showMessage(QString::number(timer.nsecsElapsed() / 1000.0) + " нс");
 
 	imageView();
 }
@@ -116,8 +138,8 @@ void MainWindow::on_drawSunPushButton_clicked()
 	for (int angle = 0; angle < 360; angle += dangle) {
 		const int x2 = 360 + round(length * cos(toRadians(angle)));
 		const int y2 = 360 - round(length * sin(toRadians(angle)));
-		if (!drawLine(QLine(360, 360, x2, y2), canvas))
-			drawPoint(QPoint(x2, y2));
+        if (!drawLineTest(QLine(360, 360, x2, y2), canvas))
+            drawPoint(QPoint(x2, y2));
 	}
 	imageView();
 }
@@ -146,14 +168,14 @@ void MainWindow::on_statisticsPushButton_clicked()
 	image.fill(defaultBgColor);
 	Canvas canvas = { &image, &fgColor };
 
-	bool (*f[7])(const QLine &, Canvas &) = {
-		dda,
-		wu,
-		dda,
-		bresenhamFloat,
-		bresenhamInteger,
-		bresenhamAntialiased,
-		wu
+    bool (*f[7])(const QLine &, Canvas &) = {
+        ddaTest,
+        wuTest,
+        ddaTest,
+        bresenhamFloatTest,
+        bresenhamIntegerTest,
+        bresenhamAntialiasedTest,
+        wuTest
 	};
 
 	for (int i = 0; i != 7; ++i) {
@@ -194,3 +216,46 @@ void MainWindow::on_statisticsPushButton_clicked()
 	dialog.setModal(true);
 	dialog.exec();
 }
+
+void MainWindow::on_statisticsLadderPushButton_clicked() {
+    std::cout << "Hello Ladder";
+    if (ladderData[0][0] == -1) {
+        int length = 100;
+        int dangle = 1;
+        QColor color = defaultBgColor;
+        Canvas canvas = { &image, &color};
+        int (*f[4])(const QLine &, Canvas &) = {
+            dda,
+            bresenhamFloat,
+            bresenhamInteger,
+            bresenhamAntialiased,
+        };
+        for (int i = 0; i < 4; i++) {
+            ladderData[i].resize(180);
+            for (int angle = 0; angle < 180; angle += dangle) {
+                const int x2 = 360 + round(length * cos(toRadians(angle)));
+                const int y2 = 360 - round(length * sin(toRadians(angle)));
+                ladderData[i][angle] = f[i](QLine(360, 360, x2, y2), canvas);
+            }
+        }
+    }
+    Ladder ladder(ladderData);
+    ladder.setModal(true);
+    ladder.exec();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

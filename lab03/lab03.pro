@@ -24,6 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
+    ladder.cpp \
         main.cpp \
         mainwindow.cpp \
     line.cpp \
@@ -31,6 +32,7 @@ SOURCES += \
     qcustomplot.cpp
 
 HEADERS += \
+    ladder.h \
         mainwindow.h \
     canvas.h \
     line.h \
@@ -38,5 +40,6 @@ HEADERS += \
     qcustomplot.h
 
 FORMS += \
+    ladder.ui \
         mainwindow.ui \
     dialog.ui

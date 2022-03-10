@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Статистика: время отрисовки</string>
   </property>
   <widget class="QCustomPlot" name="customPlot" native="true">
    <property name="geometry">

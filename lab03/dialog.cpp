@@ -28,10 +28,10 @@ Dialog::Dialog(const QVector<QVector<double>> &ns, int M, QWidget *parent) :
 	// configure right and top axis to show ticks but no labels:
 	// (see QCPAxisRect::setupFullAxesBox for a quicker method to do this)
 	ui->customPlot->xAxis2->setVisible(true);
-	ui->customPlot->xAxis2->setLabel("R");
+    ui->customPlot->xAxis2->setLabel("Длина отерзка, пкс");
 	ui->customPlot->xAxis2->setTickLabels(true);
 	ui->customPlot->yAxis2->setVisible(true);
-	ui->customPlot->yAxis2->setLabel("nsecs");
+    ui->customPlot->yAxis2->setLabel("Время отрисовки, наносекунды");
 	ui->customPlot->yAxis2->setTickLabels(true);
 	// make left and bottom axes always transfer their ranges to right and top axes:
 	connect(ui->customPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlot->xAxis2, SLOT(setRange(QCPRange)));
@@ -44,12 +44,12 @@ Dialog::Dialog(const QVector<QVector<double>> &ns, int M, QWidget *parent) :
 	ui->customPlot->graph(4)->setData(x, ns[4]);
 	ui->customPlot->graph(5)->setData(x, ns[5]);
 
-	ui->customPlot->graph(0)->setName("DDA");
-	ui->customPlot->graph(1)->setName("Bresenham (float)");
-	ui->customPlot->graph(2)->setName("Bresenham (integer)");
-	ui->customPlot->graph(3)->setName("Bresenham (anti-aliased)");
-	ui->customPlot->graph(4)->setName("Wu");
-	ui->customPlot->graph(5)->setName("Default (Qt)");
+    ui->customPlot->graph(0)->setName("ЦДА");
+    ui->customPlot->graph(1)->setName("Брезенхем");
+    ui->customPlot->graph(2)->setName("Брезенхем (с одной интенсивностью)");
+    ui->customPlot->graph(3)->setName("Брезенхем с устранением ступенчатости");
+    ui->customPlot->graph(4)->setName("Ву");
+    ui->customPlot->graph(5)->setName("Стандартный (Qt)");
 
 	// let the ranges scale themselves so graph 0 fits perfectly in the visible area:
 	ui->customPlot->graph(0)->rescaleAxes();

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QGraphicsScene>
+#include <vector>
 
 #include "canvas.h"
 
@@ -25,7 +26,9 @@ private:
 	void imageView();
 
 	bool drawLine(const QLine &line, Canvas &canvas);
+    bool drawLineTest(const QLine &line, Canvas &canvas);
 	void drawPoint(const QPoint &point);
+
 
 private slots:
 	void on_fgPushButton_clicked();
@@ -35,6 +38,7 @@ private slots:
 	void on_clearAllPushButton_clicked();
 	void on_setDefaultFGColorPushButton_clicked();
 	void on_statisticsPushButton_clicked();
+    void on_statisticsLadderPushButton_clicked();
 
 private:
 	Ui::MainWindow *ui;
@@ -45,6 +49,7 @@ private:
 
 	QImage image;
 	QGraphicsScene *scene;
+    QVector<QVector<double>> ladderData;
 };
 
 #endif // MAINWINDOW_H

@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Лабораторная работа №3 по Компьютерной графике</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QWidget" name="layoutWidget">
@@ -24,8 +24,8 @@
      <rect>
       <x>14</x>
       <y>13</y>
-      <width>394</width>
-      <height>678</height>
+      <width>417</width>
+      <height>714</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -171,7 +171,7 @@
      <item>
       <widget class="QRadioButton" name="bresenhamIntegerRadioButton">
        <property name="text">
-        <string>Брезенхем+</string>
+        <string>Брезенхем (одна интенсивность)</string>
        </property>
       </widget>
      </item>
@@ -255,9 +255,16 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="statisticsLadderPushButton">
+       <property name="text">
+        <string>Статистика (количество ступеней)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="statisticsPushButton">
        <property name="text">
-        <string>Статистика</string>
+        <string>Статистика (время отрисовки)</string>
        </property>
       </widget>
      </item>
