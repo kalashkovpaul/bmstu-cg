@@ -62,8 +62,8 @@ int dda(const QLine &line, Canvas &canvas)
 	}
     if (x != line.p2().x() || y != line.p2().y())
         ok = false;
-    if (!ok)
-        drawPoint(line.p2(), canvas);
+//    if (!ok)
+//        drawPoint(line.p2(), canvas);
     return ladders;
 }
 // Анализ отрезков, проведенных из точки (0, 0) в точку (—8, 4) и (8, —4), показывает, что
@@ -139,8 +139,8 @@ int bresenhamFloat(const QLine &line, Canvas &canvas)
 	}
     if (x != line.p2().x() || y != line.p2().y())
         ok = false;
-    if (!ok)
-        drawPoint(line.p2(), canvas);
+//    if (!ok)
+//        drawPoint(line.p2(), canvas);
     return ladders;
 }
 
@@ -205,8 +205,8 @@ int bresenhamInteger(const QLine &line, Canvas &canvas)
 	}
     if (x != line.p2().x() || y != line.p2().y())
         ok = false;
-    if (!ok)
-        drawPoint(line.p2(), canvas);
+//    if (!ok)
+//        drawPoint(line.p2(), canvas);
     return ladders;
 }
 
@@ -277,8 +277,8 @@ int bresenhamAntialiased(const QLine &line, Canvas &canvas)
 	}
     if (x != line.p2().x() || y != line.p2().y())
         ok = false;
-    if (!ok)
-        drawPoint(line.p2(), canvas);
+//    if (!ok)
+//        drawPoint(line.p2(), canvas);
 
     return ladders;
 }
