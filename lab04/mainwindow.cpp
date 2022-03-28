@@ -184,9 +184,8 @@ void MainWindow::on_statisticsCirclePushButton_clicked()
         parametric,
         bresenham,
         midPoint,
-        defaultQt
     };
-    for (int i = 0; i != functionAmount; i++) {
+    for (int i = 0; i != functionAmount - 1; i++) {
         for (int radius = 1; radius != maxRadius + 1; radius++) {
             QElapsedTimer timer;
             timer.start();
@@ -195,6 +194,13 @@ void MainWindow::on_statisticsCirclePushButton_clicked()
             }
             nanoseconds[i][radius - 1] = static_cast<double> (timer.nsecsElapsed() / testAmount);
         }
+    }
+    for (int radius = 1; radius != maxRadius - 1; radius++) {
+        size_t time = 0;
+        for (int k = 0; k < testAmount; k++) {
+            time += defaultQt(center, radius, canvas);
+        }
+        nanoseconds[functionAmount - 1][radius - 1] = static_cast<double> (time / testAmount);
     }
     QVector<QVector<double>> nanoVector(functionAmount);
     for (int i = 0; i < functionAmount; i++) {
@@ -221,12 +227,11 @@ void MainWindow::on_statisticsEllipsePushButton_clicked()
         canonical,
         parametric,
         bresenham,
-        midPoint,
-        defaultQt
+        midPoint
     };
     int a = a0;
     int b = b0;
-    for (int i = 0; i != functionAmount; i++) {
+    for (int i = 0; i != functionAmount - 1; i++) {
         a = a0;
         b = b0;
         for (int j = 1; j != n + 1; j++) {
@@ -239,6 +244,17 @@ void MainWindow::on_statisticsEllipsePushButton_clicked()
             }
             nanoseconds[i][j - 1] = static_cast<double> (timer.nsecsElapsed() / testAmount);
         }
+    }
+    a = a0;
+    b = b0;
+    for (int j = 1; j != n + 1; j++) {
+        a += dr;
+        b += dr;
+        size_t time = 0;
+        for (int k = 0; k < testAmount; k++) {
+            time += defaultQt(center, a, b, canvas);
+        }
+        nanoseconds[functionAmount - 1][j - 1] = static_cast<double> (time / testAmount);
     }
     QVector<QVector<double>> nanoVector(functionAmount);
     for (int i = 0; i < functionAmount; i++) {

@@ -1,6 +1,7 @@
 #include "circle.h"
 #include "draw4points.h"
 #include <QPainter>
+#include <QElapsedTimer>
 #include <cmath>
 
 const float EPS = 1e-5;
@@ -8,7 +9,7 @@ const float EPS = 1e-5;
 void canonical(const QPoint &c, const int r, Canvas &canvas)
 {
     const int r2 = r*r;
-    int deltaX = qRound(r / sqrt(2));
+    int deltaX = qRound(r * M_SQRT1_2);
     for (int x = 0; x <= deltaX; ++x) {
         const int y = qRound(sqrt(r2 - x*x));
         draw4points(c, x, y, canvas);
@@ -85,16 +86,19 @@ void midPoint(const QPoint &c, const int r, Canvas &canvas)
 	} while (x <= y);
 }
 
-void defaultQt(const QPoint &c, const int r, Canvas &canvas)
+size_t defaultQt(const QPoint &c, const int r, Canvas &canvas)
 {
 	QPixmap pixmap = QPixmap::fromImage(*canvas.image);
 	QPainter painter(&pixmap);
 	painter.setPen(*canvas.color);
+    QElapsedTimer timer;
+    timer.start();
 
 	defaultQtCore(c, r, painter);
-
+    size_t result = timer.nsecsElapsed();
 	painter.end();
 	*canvas.image = pixmap.toImage();
+    return result;
 }
 
 void defaultQtCore(const QPoint &c, const int r, QPainter &painter)

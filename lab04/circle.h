@@ -7,7 +7,7 @@ void canonical(const QPoint &center, const int radius, Canvas &canvas);
 void parametric(const QPoint &center, const int radius, Canvas &canvas);
 void bresenham(const QPoint &center, const int radius, Canvas &canvas);
 void midPoint(const QPoint &center, const int radius, Canvas &canvas);
-void defaultQt(const QPoint &center, const int radius, Canvas &canvas);
+size_t defaultQt(const QPoint &center, const int radius, Canvas &canvas);
 void defaultQtCore(const QPoint &center, const int radius, QPainter &painter);
 
 

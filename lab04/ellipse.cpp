@@ -1,5 +1,6 @@
 #include "ellipse.h"
 #include "draw4points.h"
+#include <QElapsedTimer>
 #include <QPainter>
 #include <cmath>
 
@@ -107,16 +108,20 @@ void midPoint(const QPoint& c, const int a, const int b, Canvas &canvas) {
 	}
 }
 
-void defaultQt(const QPoint &c, const int a, const int b, Canvas &canvas)
+size_t defaultQt(const QPoint &c, const int a, const int b, Canvas &canvas)
 {
 	QPixmap pixmap = QPixmap::fromImage(*canvas.image);
 	QPainter painter(&pixmap);
 	painter.setPen(*canvas.color);
-
+    QElapsedTimer timer;
+    timer.start();
+    defaultQtCore(c, a, b, painter);
+    size_t result = timer.nsecsElapsed();
 	defaultQtCore(c, a, b, painter);
 
 	painter.end();
 	*canvas.image = pixmap.toImage();
+    return result;
 }
 
 void defaultQtCore(const QPoint &c, const int a, const int b, QPainter &painter)
