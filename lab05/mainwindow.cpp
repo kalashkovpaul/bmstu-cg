@@ -68,12 +68,12 @@ void MainWindow::on_addPointPushButton_clicked()
 void MainWindow::on_closePushButton_clicked()
 {
 	if (closed) {
-		QMessageBox::critical(this, "Error", "Already closed");
+        QMessageBox::critical(this, "Ошибка", "Фигура уже замкнута!");
 		return;
 	}
 
-	if (n_edges < 2) {
-		QMessageBox::critical(this, "Error", "Need at least 2 edges");
+    if (n_edges < 2) {
+        QMessageBox::critical(this, "Ошибка", "Нужно как минимум 2 ребра!");
 		return;
 	}
 
@@ -170,7 +170,7 @@ void sortX(QVector<QPoint> &intersections, QVector<int> &indices)
 void MainWindow::on_fillPushButton_clicked()
 {
 	if (!closed) {
-		QMessageBox::critical(this, "Error", "Figure is not closed");
+        QMessageBox::critical(this, "Ошибка", "Фигура не замкнута! Воспользуйтесь опцией \"Замкнуть\".");
 		return;
 	}
 
@@ -258,7 +258,7 @@ void MainWindow::on_clearPushButton_clicked()
 
 void MainWindow::on_setColorPushButton_clicked()
 {
-	fillColor = QColorDialog::getColor(fillColor, this, "Pick a color", QColorDialog::DontUseNativeDialog);
+    fillColor = QColorDialog::getColor(fillColor, this, "Выберите цвет", QColorDialog::DontUseNativeDialog);
 	if (fillColor == defaultBoundColor)
 		fillColor = defaultFillColor;
     fillColorInversion = QColor(fillColor.alpha() - fillColor.red(),
