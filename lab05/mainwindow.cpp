@@ -93,18 +93,16 @@ constexpr int sgn(int val) {
 QVector<QPoint> handleVertices(QVector<QPoint> &intersections, const QVector<QLine> &edges)
 {
     QVector<QPoint> extension;
-	for (int i = 0; i < edges.size(); ++i) {
-		if (edges[i].p1().y() != edges[i].p2().y()) {
-            extension.push_back(edges[i].p2());
-            int j = (i + 1) % edges.size(), skip = 0;
-            for (; edges[j].p1().y() == edges[j].p2().y(); j = (j + 1) % edges.size(), ++skip)
-                ;
-            if (sgn(edges[i].p1().y() - edges[i].p2().y())
-             == sgn(edges[j].p2().y() - edges[j].p1().y()))
-                extension.pop_back();
-            i += skip;
-		}
-	}
+    for (int i = 0; i < edges.size() - 1; ++i) {
+        if (edges[i].p1().y() != edges[i].p2().y()) {
+            if (edges[i].p2().y() == edges[i + 1].p1().y() &&
+                    sgn(edges[i].p1().y() - edges[i].p2().y()) == sgn(edges[i + 1].p1().y() - edges[i + 1].p2().y()))
+                extension.push_back(edges[i].p2());
+        }
+    }
+//    if (edges[edges.size() - 1].p2().y() == edges[0].p1().y() &&
+//                sgn(edges[edges.size() - 1].p1().y() - edges[edges.size() - 1].p2().y()) == sgn(edges[0].p1().y() - edges[0].p2().y()))
+//        extension.push_back(edges[edges.size() - 1].p2());
     return extension;
 }
 
@@ -176,11 +174,6 @@ void MainWindow::on_fillPushButton_clicked()
 
 	displayImage();
 
-//    sortY(intersections);
-
-//    QVector<int> indices;
-//    sortX(intersections, indices);
-
 	QPainter painter(&pixmap);
 	painter.setPen(fillColor);
 
@@ -204,6 +197,7 @@ void MainWindow::on_fillPushButton_clicked()
     painter.end();
     QVector<QPoint> toFix = handleVertices(intersections, edges);
     fixVertices(toFix);
+//    fixVertices(firstPoints);
 	displayImage();
 }
 
@@ -248,10 +242,12 @@ void MainWindow::on_clearPushButton_clicked()
 	closed = false;
 	points.clear();
 	edges.clear();
+    firstPoints.clear();
 	intersections.clear();
 	fillColor = defaultFillColor;
 	colorLabel();
 	n_edges = 0;
+    max_x = -1;
 	ui->tableWidget->clearContents();
 	ui->tableWidget->model()->removeRows(0, ui->tableWidget->rowCount());
 }
@@ -273,7 +269,6 @@ void MainWindow::addPoint(const QPoint &point, DrawType drawType)
 	const int n = points.size();
 	points.push_back(point);
 	ui->tableWidget->insertRow(n);
-    if (point.x() > max_x) { max_x = point.x(); }
     if (n && !closed)
 		switch (drawType) {
 		case DrawType::horizontal:
@@ -304,11 +299,13 @@ void MainWindow::addPoint(const QPoint &point, DrawType drawType)
         firstPoint = points[n];
 	ui->tableWidget->setItem(n, 0, new QTableWidgetItem(QString::number(points[n].x())));
 	ui->tableWidget->setItem(n, 1, new QTableWidgetItem(QString::number(points[n].y())));
+    if (point.x() > max_x) { max_x = point.x(); }
 
     if (n && !closed) {
 		addEdge(QLine(points[closed ? 0 : n - 1], points[n]));
 		closed = false;
-	}
+    } else if (n != 0)
+        firstPoints.push_back(point);
     closed = false;
 }
 

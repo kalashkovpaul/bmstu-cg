@@ -36,6 +36,7 @@ private:
 	QVector<QPoint> points;
 	QVector<QLine> edges;
 	QVector<QPoint> intersections;
+    QVector<QPoint> firstPoints;
     QPoint firstPoint;
 
 	QPixmap pixmap;
