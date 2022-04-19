@@ -100,20 +100,12 @@ QVector<QPoint> handleVertices(QVector<QPoint> &intersections, const QVector<QLi
                 extension.push_back(edges[i].p2());
         }
     }
-//    if (edges[edges.size() - 1].p2().y() == edges[0].p1().y() &&
-//                sgn(edges[edges.size() - 1].p1().y() - edges[edges.size() - 1].p2().y()) == sgn(edges[0].p1().y() - edges[0].p2().y()))
-//        extension.push_back(edges[edges.size() - 1].p2());
     return extension;
 }
 
 void MainWindow::fixVertices(QVector<QPoint>& intersections)
 {
     displayImage();
-
-//    sortY(intersections);
-
-//    QVector<int> indices;
-//    sortX(intersections, indices);
 
     QPainter painter(&pixmap);
     painter.setPen(fillColor);
@@ -167,15 +159,15 @@ void sortX(QVector<QPoint> &intersections, QVector<int> &indices)
 
 void MainWindow::on_fillPushButton_clicked()
 {
-	if (!closed) {
+    if (!closed) {
         QMessageBox::critical(this, "Ошибка", "Фигура не замкнута! Воспользуйтесь опцией \"Замкнуть\".");
-		return;
-	}
+        return;
+    }
 
-	displayImage();
+    displayImage();
 
-	QPainter painter(&pixmap);
-	painter.setPen(fillColor);
+    QPainter painter(&pixmap);
+    painter.setPen(fillColor);
 
     for (int k = 0; k < intersections.size(); k++) {
         int y = intersections[k].y();
@@ -197,44 +189,9 @@ void MainWindow::on_fillPushButton_clicked()
     painter.end();
     QVector<QPoint> toFix = handleVertices(intersections, edges);
     fixVertices(toFix);
-//    fixVertices(firstPoints);
-	displayImage();
+    fixVertices(firstPoints);
+    displayImage();
 }
-
-//void MainWindow::on_fillPushButton_clicked()
-//{
-//	if (!closed) {
-//		QMessageBox::critical(this, "Error", "Figure is not closed");
-//		return;
-//	}
-
-//	handleVertices(intersections, edges);
-//	displayImage();
-
-//	sortY(intersections);
-
-//	QVector<int> indices;
-//	sortX(intersections, indices);
-
-//	QPainter painter(&pixmap);
-//	painter.setPen(fillColor);
-
-//	for (int k = 0; k < indices.size() - 1; ++k) {
-//		const int ix_begin = indices[k];
-//		const int ix_end = indices[k + 1];
-//		const int y = intersections[ix_begin].y();
-//		for (int i = ix_begin; i < ix_end - 1; i += 2)
-//			for (int x = intersections[i].x(); x <= intersections[i + 1].x(); ++x)
-//				if (image.pixelColor(x, y) != defaultBoundColor)
-//					painter.drawPoint(x, y);
-//		if (ui->delayCheckBox->isChecked()) {
-//			displayImage();
-//			delay(ui->delaySpinBox->value());
-//		}
-//	}
-
-//	displayImage();
-//}
 
 void MainWindow::on_clearPushButton_clicked()
 {
