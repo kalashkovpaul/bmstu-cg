@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Лаб.№7 Реализация и изучение алгоритмов отсучени отрезка регулярным отсекателем (метод средней точки)</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="DrawLabel" name="drawLabel">
@@ -321,6 +321,32 @@
     </property>
     <property name="text">
      <string>Правая кнопка мыши - угол отсекателя</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>600</y>
+      <width>371</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ctrl - вертикальный отрезок</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>630</y>
+      <width>341</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Shift - горизонтальный отрезок</string>
     </property>
    </widget>
   </widget>

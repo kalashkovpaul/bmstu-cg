@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1522</width>
+    <width>1633</width>
     <height>825</height>
    </rect>
   </property>
@@ -16,15 +16,15 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Лаб. №8. Отсечение отрезка произвольным выпуклым отсекателем. Реализация алгоритма Кируса-Бека</string>
+   <string>Лаб.№9 Реализация алгоритма отсечения многоугольника выпуклым отсекателем (алгоритм Сазерленда-Ходжмана)</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="DrawLabel" name="drawLabel">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>-10</y>
-      <width>1171</width>
+      <x>410</x>
+      <y>10</y>
+      <width>1201</width>
       <height>801</height>
      </rect>
     </property>
@@ -37,11 +37,18 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>401</width>
-      <height>495</height>
+      <width>398</width>
+      <height>567</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="20" column="0" colspan="3">
+      <widget class="QPushButton" name="clearAllPushButton">
+       <property name="text">
+        <string>Очистить всё</string>
+       </property>
+      </widget>
+     </item>
      <item row="10" column="0">
       <widget class="QLabel" name="clipperColorLabel">
        <property name="minimumSize">
@@ -55,22 +62,8 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
-      <widget class="QSpinBox" name="x2SpinBox">
-       <property name="maximum">
-        <number>1200</number>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QSpinBox" name="xSpinBox">
-       <property name="maximum">
-        <number>1200</number>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QSpinBox" name="x1SpinBox">
+     <item row="5" column="1" colspan="2">
+      <widget class="QSpinBox" name="xClipperSpinBox">
        <property name="maximum">
         <number>1200</number>
        </property>
@@ -89,7 +82,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="0" colspan="5">
+     <item row="8" column="0" colspan="3">
       <widget class="Line" name="line_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -97,84 +90,56 @@
       </widget>
      </item>
      <item row="5" column="0">
-      <widget class="QLabel" name="xTextLabel">
+      <widget class="QLabel" name="xClipperTextLabel">
        <property name="text">
         <string>x</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="0" colspan="5">
+     <item row="7" column="0" colspan="3">
       <widget class="QPushButton" name="addClipperVertexPushButton">
        <property name="text">
         <string>Добавить вершину отсекателя</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0" colspan="5">
+     <item row="4" column="0" colspan="3">
       <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
-     <item row="16" column="0" colspan="5">
+     <item row="19" column="0" colspan="3">
       <widget class="QPushButton" name="deleteClipperPushButton">
        <property name="text">
         <string>Удалить отсекатель</string>
        </property>
       </widget>
      </item>
-     <item row="15" column="0" colspan="5">
+     <item row="16" column="0" colspan="3">
       <widget class="QPushButton" name="closeClipperPushButton">
        <property name="text">
         <string>Замкнуть отсекатель</string>
        </property>
       </widget>
      </item>
-     <item row="14" column="0" colspan="5">
-      <widget class="QPushButton" name="clearAllPushButton">
-       <property name="text">
-        <string>Очистить всё</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="x1TextLabel">
+      <widget class="QLabel" name="xPolygonTextLabel">
        <property name="text">
-        <string>x1</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QLabel" name="x2TextLabel">
-       <property name="text">
-        <string>x2</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
-      <widget class="QSpinBox" name="y2SpinBox">
-       <property name="maximum">
-        <number>800</number>
+        <string>x</string>
        </property>
       </widget>
      </item>
      <item row="6" column="0">
-      <widget class="QLabel" name="yTextLabel">
+      <widget class="QLabel" name="yClipperTextLabel">
        <property name="text">
         <string>y</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
-      <widget class="QSpinBox" name="ySpinBox">
-       <property name="maximum">
-        <number>800</number>
-       </property>
-      </widget>
-     </item>
      <item row="9" column="0">
-      <widget class="QLabel" name="lineColorLabel">
+      <widget class="QLabel" name="polygonColorLabel">
        <property name="minimumSize">
         <size>
          <width>64</width>
@@ -186,90 +151,110 @@
        </property>
       </widget>
      </item>
-     <item row="13" column="0" colspan="5">
-      <widget class="QPushButton" name="clipPushButton">
-       <property name="text">
-        <string>Отсечь</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="y1TextLabel">
+      <widget class="QLabel" name="yPolygonTextLabel">
        <property name="text">
-        <string>y1</string>
+        <string>y</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="y1SpinBox">
-       <property name="maximum">
-        <number>800</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QLabel" name="y2TextLabel">
-       <property name="text">
-        <string>y2</string>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="0" colspan="5">
+     <item row="12" column="0" colspan="3">
       <widget class="Line" name="line_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
-     <item row="11" column="1" colspan="4">
+     <item row="11" column="1" colspan="2">
       <widget class="QPushButton" name="setClippedLineColorPushButton">
        <property name="text">
-        <string>Выбрать цвет отсечённых отрезков</string>
+        <string>Выбрать цвет отсечённой части</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="5">
-      <widget class="QPushButton" name="addLinePushButton">
+     <item row="3" column="0" colspan="3">
+      <widget class="QPushButton" name="addPolygonVertexPushButton">
        <property name="text">
-        <string>Добавить отрезок</string>
+        <string>Добавить вершину многоугольника</string>
        </property>
       </widget>
      </item>
-     <item row="10" column="1" colspan="4">
+     <item row="10" column="1" colspan="2">
       <widget class="QPushButton" name="setClipperColorPushButton">
        <property name="text">
-        <string>Выбрить цвет отсекателя</string>
+        <string>Выбрать цвет отсекателя</string>
        </property>
       </widget>
      </item>
-     <item row="9" column="1" colspan="4">
-      <widget class="QPushButton" name="setLineColorPushButton">
+     <item row="9" column="1" colspan="2">
+      <widget class="QPushButton" name="setPolygonColorPushButton">
        <property name="text">
-        <string>Выбрать цвет отрезков</string>
+        <string>Выбрать цвет многоугольника</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2" rowspan="2">
-      <widget class="Line" name="line_4">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+     <item row="1" column="1" colspan="2">
+      <widget class="QSpinBox" name="yPolygonSpinBox">
+       <property name="maximum">
+        <number>800</number>
        </property>
       </widget>
      </item>
-     <item row="5" column="2" rowspan="2">
-      <widget class="Line" name="line_5">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+     <item row="15" column="0" colspan="3">
+      <widget class="QPushButton" name="closePolygonPushButton">
+       <property name="text">
+        <string>Замкнуть многоугольник</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QSpinBox" name="xPolygonSpinBox">
+       <property name="maximum">
+        <number>1200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1" colspan="2">
+      <widget class="QSpinBox" name="yClipperSpinBox">
+       <property name="maximum">
+        <number>800</number>
+       </property>
+      </widget>
+     </item>
+     <item row="18" column="0" colspan="3">
+      <widget class="QPushButton" name="deletePolygonPushButton">
+       <property name="text">
+        <string>Удалить многоугольник</string>
+       </property>
+      </widget>
+     </item>
+     <item row="17" column="0" colspan="3">
+      <widget class="QPushButton" name="clipPushButton">
+       <property name="text">
+        <string>Отсечь</string>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>680</y>
+      <width>271</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ctrl - вертикальный отрезок</string>
+    </property>
+   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>510</y>
+      <y>590</y>
       <width>361</width>
       <height>21</height>
      </rect>
@@ -278,24 +263,11 @@
      <string>Левая кнопка мыши - вершина отрезка</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>540</y>
-      <width>401</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Правая кнопка мыши - вершина отсекателя</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>570</y>
+      <y>650</y>
       <width>301</width>
       <height>17</height>
      </rect>
@@ -304,17 +276,17 @@
      <string>Shift - горизонтальный отрезок</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>600</y>
-      <width>271</width>
-      <height>17</height>
+      <y>620</y>
+      <width>401</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Ctrl - вертикальный отрезок</string>
+     <string>Правая кнопка мыши - вершина отсекателя</string>
     </property>
    </widget>
   </widget>

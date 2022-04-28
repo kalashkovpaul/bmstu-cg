@@ -250,7 +250,6 @@ void MainWindow::clipLine(const QLine &line, int xl, int xr, int yb, int yt, QPa
 		}
 
 		if (t2) {
-			// TODO: сделать нормальный выход из цикла
 			while (qAbs(p1.x() - p2.x()) > EPS || qAbs(p1.y() - p2.y()) > EPS) {
 				const QPoint pm = (p1 + p2) / 2;
 				const int tm = code(pm, xl, xr, yb, yt);
